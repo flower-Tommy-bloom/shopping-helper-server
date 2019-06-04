@@ -2,14 +2,17 @@ const puppeteer = require('puppeteer')
 
 process.on('message', (param) => {
     const id = param.id
+    const originPrice = param.originPrice
+    const buyOnly = param.buyOnly
     const url = 'https://item.jd.com/' + param.id + '.html'
-    findNewPrice(id, url)
+    findNewPrice(id, url,originPrice, buyOnly)
 })
+
 const sleep = time => new Promise(resolve => {
     setTimeout(resolve, time)
 })
 
-const findNewPrice = async (id, url) => {
+const findNewPrice = async (id, url, originPrice, buyOnly) => {
     console.log(`goodsId:  ${id} is Updating data`)
 
     const browser = await puppeteer.launch({
@@ -34,6 +37,9 @@ const findNewPrice = async (id, url) => {
         }
     })
     result.goodsId = Number(id)
+    result.originPrice = originPrice
+    result.buyOnly = buyOnly
+    result.url = url
     browser.close()
     process.send(result)
 }
