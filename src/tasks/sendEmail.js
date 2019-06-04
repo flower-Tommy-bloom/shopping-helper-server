@@ -34,5 +34,5 @@ const sendEmail = (userEmail,title,content) => {
         console.log('Message sent: ' + info.response);
     });
 }
-// exports = sendEmail
-sendEmail('415157361@qq.com','xxxxxxxxxx','正文,我可以')
+
+module.exports = sendEmail

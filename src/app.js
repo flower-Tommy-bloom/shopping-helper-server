@@ -13,4 +13,5 @@ const cors = require('koa-cors') // 跨域
             .use(router.routes())
             .use(router.allowedMethods())
         app.listen(3001)
+    require('./tasks/findCheap')
 })()

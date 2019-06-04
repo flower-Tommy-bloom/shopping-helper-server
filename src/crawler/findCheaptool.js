@@ -3,26 +3,25 @@ const puppeteer = require('puppeteer')
 process.on('message', (param) => {
     const id = param.id
     const url = 'https://item.jd.com/' + param.id + '.html'
-    findNewPrice(id,url)
+    findNewPrice(id, url)
 })
 const sleep = time => new Promise(resolve => {
     setTimeout(resolve, time)
 })
 
-const findNewPrice = async (id,url) => {
-    console.log(`goods number ${id} is Updating data`)
-    
+const findNewPrice = async (id, url) => {
+    console.log(`goodsId:  ${id} is Updating data`)
+
     const browser = await puppeteer.launch({
         args: ['--no-sandbox'],
         dumpio: false
     })
-    
+
     const page = await browser.newPage()
-    
+
     await page.goto(url, {
         waitUntil: 'networkidle2'
     })
-    
     const result = await page.evaluate((id) => {
         var $ = window.$
         let name = $('.parameter2 li')[0].innerHTML.substr(5)
@@ -31,11 +30,10 @@ const findNewPrice = async (id,url) => {
         return {
             name,
             price,
-            goodsImg,
-            id
+            goodsImg
         }
     })
+    result.goodsId = Number(id)
     browser.close()
     process.send(result)
-    process.exit(999)
 }

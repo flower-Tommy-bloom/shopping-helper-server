@@ -1,8 +1,8 @@
 const Router = require('koa-router')
 const mongoose = require('mongoose')
 const router = new Router()
-const crawlGoods = require('./../tasks/goods-test')
-// const findCheap = require('../tasks/findCheap')
+const crawlGoods = require('./../tasks/crawlGoods')
+const { isArray } = require('./../util/tool')
 router.post('/api/login', async (ctx, next) => {
     const User = mongoose.model('User')
     const { username, password } = ctx.request.body
@@ -29,18 +29,21 @@ router.post('/api/login', async (ctx, next) => {
 })
 
 router.get('/api/searchgoods', async (ctx, next) => {
-    const { type,param } = ctx.request.query
+    const { type, param = undefined  } = ctx.request.query
     const Goods = mongoose.model('Goods')
-    let data 
-    if(type === 'id' ){
-        data = await Goods.find({ id: param })
-    }else if(type === 'isAttention'){
-        data = await Goods.find({ isAttention: true }).limit(10)
-    }else if(type === 'spoor'){
-        data = await Goods.find().limit(10)
+    let data
+    switch (type) {
+        case 'goodsId':
+            data = await Goods.find({ goodsId: param })
+            break;
+        case 'isAttention':
+            data = await Goods.find({ isAttention: true })
+            break;
+        case 'spoor':
+            data = await Goods.find().limit(10).sort({ 'meta.updateAt':1 })
+            break;
     }
-
-    if (data && data.length > 0) {
+    if (data && data.length != 0) {
         ctx.body = {
             msg: '查询成功',
             success: true,
@@ -58,20 +61,20 @@ router.get('/api/searchgoods', async (ctx, next) => {
     }
 })
 
-router.post('/api/attention', async (ctx,next) => {
+router.post('/api/attention', async (ctx, next) => {
     const Goods = mongoose.model('Goods')
-    const { id, isAttention, attentionPrice } = ctx.request.body
-    if(!isAttention){
-        const res =  await Goods.update({id:id},{isAttention:false}).exec()
-        if(res){
+    const { goodsId, isAttention, attentionPrice, buyOnly } = ctx.request.body
+    if (!isAttention) {
+        const res = await Goods.update({ goodsId: goodsId }, { isAttention: false }).exec()
+        if (res) {
             ctx.body = {
                 msg: '取消关注成功!!!',
                 success: true
             }
         }
-    }else{
-        const res =  await Goods.update({id:id},{isAttention:true,attentionPrice}).exec()
-        if(res){
+    } else {
+        const res = await Goods.update({ goodsId: goodsId }, { isAttention: true, attentionPrice,buyOnly }).exec()
+        if (res) {
             ctx.body = {
                 msg: `关注成功!,价格降至${attentionPrice}将邮件通知您`,
                 success: true
