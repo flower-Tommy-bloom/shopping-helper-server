@@ -17,7 +17,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-cors": "0.0.16",
     "koa-router": "^7.4.0",
-    "mongoose": "^5.5.12",
+    "mongoose": "^5.7.5",
     "nodemailer": "^6.2.1",
     "puppeteer": "^1.17.0"
   }
